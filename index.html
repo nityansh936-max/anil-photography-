@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anil Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1a17;
+    --ink-soft: #57534e;
+    --line: #e7e5e4;
+    --tint: #faf9f7;
+    --accent: #2C4A6E;
+    --accent-dark: #233c59;
+    --placeholder: #EDEAE4;
+    --placeholder-text: #A79E92;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: #fff;
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .serif { font-family: 'Playfair Display', Georgia, serif; }
+  img { display: block; max-width: 100%; }
+  a { text-decoration: none; color: inherit; }
+
+  .wrap { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
+  @media (min-width: 768px) { .wrap { padding: 0 40px; } }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-row {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 80px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img {
+    height: 44px; width: auto; object-fit: contain;
+  }
+  .brand-name {
+    font-size: 1.3rem;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  nav.desktop-nav { display: none; gap: 36px; }
+  nav.desktop-nav a {
+    font-size: 0.9rem; color: var(--ink-soft);
+    transition: color .2s;
+  }
+  nav.desktop-nav a:hover { color: var(--ink); }
+  @media (min-width: 768px) { nav.desktop-nav { display: flex; align-items: center; } }
+
+  .hamburger {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    width: 40px; height: 40px; background: none; border: none; cursor: pointer;
+    margin-right: -8px;
+  }
+  @media (min-width: 768px) { .hamburger { display: none; } }
+  .hamburger span {
+    display: block; width: 24px; height: 1px; background: var(--ink);
+    transition: transform .2s, opacity .2s;
+  }
+  .hamburger span:nth-child(2) { margin-top: 6px; }
+  .hamburger span:nth-child(3) { margin-top: 6px; }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-nav {
+    max-height: 0; overflow: hidden; background: #fff;
+    border-top: 1px solid var(--line);
+    transition: max-height .3s ease;
+  }
+  .mobile-nav.open { max-height: 360px; }
+  .mobile-nav-inner { display: flex; flex-direction: column; padding: 16px 24px; }
+  .mobile-nav-inner a {
+    padding: 12px 0; color: #44403c; border-bottom: 1px solid #f5f5f4;
+  }
+  .mobile-nav-inner a:last-child { border-bottom: none; }
+  @media (min-width: 768px) { .mobile-nav { display: none !important; } }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  /* Large photo */
+  .photo-block { background: #fff; }
+  .photo-frame {
+    width: 100%; height: 55vh; min-height: 320px; overflow: hidden;
+  }
+  @media (min-width: 768px) { .photo-frame { height: 75vh; } }
+  .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* First (hero) photo: full-bleed across the whole screen width,
+     same height as before (85% of the viewport). */
+  .photo-frame.full {
+    width: 100%; height: 85vh; min-height: 320px;
+  }
+  .photo-frame.full img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
+  }
+
+  /* Text sections */
+  .text-section { padding: 80px 0; }
+  @media (min-width: 768px) { .text-section { padding: 112px 0; } }
+  .text-section.tint { background: var(--tint); }
+  .text-inner { max-width: 640px; margin: 0 auto; text-align: center; }
+  .text-inner h2 { font-size: 1.9rem; margin: 0; }
+  @media (min-width: 768px) { .text-inner h2 { font-size: 2.3rem; } }
+  .text-inner p { margin-top: 24px; color: var(--ink-soft); line-height: 1.75; font-size: 1.05rem; }
+
+  /* Services — same large, full-width treatment as the hero/large photos,
+     shown at the image's own natural proportions (not cropped/forced). */
+  .services-grid {
+    display: flex; flex-direction: column; gap: 72px; margin-top: 56px;
+  }
+  .service-item { text-align: center; }
+  .service-photo { width: 100%; background: #000; }
+  .service-photo img,
+  .service-photo video {
+    width: 100%; height: auto; max-height: 85vh; display: block;
+    object-fit: contain; margin: 0 auto;
+  }
+  .service-item p { margin-top: 18px; font-size: 1.05rem; color: #292524; }
+
+  /* Footer / contact */
+  footer {
+    background: var(--tint); border-top: 1px solid var(--line);
+  }
+  .footer-inner { max-width: 720px; margin: 0 auto; padding: 80px 24px 96px; text-align: center; }
+  .footer-inner .brand-name { font-size: 1.15rem; }
+  .contact-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px 24px; margin-top: 48px;
+  }
+  @media (min-width: 640px) { .contact-grid { grid-template-columns: repeat(4, 1fr); } }
+  .contact-label {
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #a8a29e;
+  }
+  .contact-value {
+    display: block; margin-top: 8px; font-size: 0.9rem; color: #292524; transition: color .2s;
+    word-break: break-word;
+  }
+  .contact-value:hover { color: var(--accent); }
+  .copyright { margin-top: 64px; font-size: 0.75rem; color: #a8a29e; }
+
+  /* Book Now — floating button + enquiry modal */
+  .book-now-fab {
+    position: fixed; left: 20px; bottom: 20px; z-index: 50;
+    background: var(--accent); color: #fff; border: none;
+    padding: 14px 22px; font-size: 0.9rem; letter-spacing: 0.03em;
+    border-radius: 999px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    transition: background .2s;
+  }
+  .book-now-fab:hover { background: var(--accent-dark); }
+
+  .book-now-modal {
+    display: none; position: fixed; inset: 0; z-index: 60;
+    background: rgba(28,26,23,0.55); padding: 24px;
+    align-items: center; justify-content: center;
+  }
+  .book-now-modal.open { display: flex; }
+  .book-now-box {
+    background: #fff; width: 100%; max-width: 420px; padding: 32px 28px;
+    border-radius: 6px; position: relative; max-height: 90vh; overflow-y: auto;
+  }
+  .book-now-box h3 { margin: 0 0 20px; font-size: 1.4rem; }
+  .book-now-close {
+    position: absolute; top: 14px; right: 16px; background: none; border: none;
+    font-size: 1.4rem; line-height: 1; cursor: pointer; color: var(--ink-soft);
+  }
+  #bookNowForm { display: flex; flex-direction: column; gap: 12px; }
+  #bookNowForm input,
+  #bookNowForm textarea {
+    width: 100%; padding: 11px 12px; font-size: 0.92rem;
+    border: 1px solid var(--line); border-radius: 4px; font-family: inherit;
+  }
+  #bookNowForm input:focus,
+  #bookNowForm textarea:focus { outline: none; border-color: var(--accent); }
+  .book-now-submit {
+    margin-top: 4px; background: var(--accent); color: #fff; border: none;
+    padding: 12px; font-size: 0.95rem; border-radius: 4px; cursor: pointer;
+    transition: background .2s;
+  }
+  .book-now-submit:hover { background: var(--accent-dark); }
+
+  /* Services — "View album" opens a separate gallery page */
+  .service-view-link {
+    display: inline-block; margin-top: 4px; font-size: 0.82rem;
+    color: var(--accent); text-decoration: underline;
+  }
+
+  /* ---------- Phone view only (below 768px) ----------
+     Laptop/desktop styles above are untouched. On phones the photos are
+     shown whole, at their own proportions, edge to edge — instead of a
+     tall frame that cropped wide photos down to a thin slice. */
+  @media (max-width: 767px) {
+    /* Never let anything push the page wider than the phone screen */
+    html, body { overflow-x: hidden; max-width: 100%; }
+
+    /* First three photos: exactly the screen width, whole photo visible
+       (3:2 frame matches the photos, so nothing is cropped). */
+    .photo-block { width: 100%; max-width: 100vw; overflow: hidden; }
+    .photo-frame,
+    .photo-frame.full {
+      width: 100% !important; max-width: 100vw !important;
+      height: auto !important; min-height: 0 !important;
+      aspect-ratio: 3 / 2; overflow: hidden;
+    }
+    .photo-frame img,
+    .photo-frame.full img {
+      width: 100% !important; max-width: 100% !important;
+      height: 100% !important; object-fit: contain !important;
+      object-position: center;
+    }
+
+    /* Services: full screen width, no black bars around the media */
+    .services-grid { gap: 48px; margin-top: 40px; }
+    .service-photo {
+      width: auto; margin: 0 -24px; background: transparent;
+    }
+    .service-photo img,
+    .service-photo video {
+      width: 100%; height: auto; max-height: none; object-fit: contain;
+    }
+    .service-photo video { background: #000; max-height: 80svh; }
+    .service-item p { padding: 0 8px; }
+
+    /* Header & text sizing for small screens */
+    .header-row { height: 64px; }
+    .brand img { height: 36px; }
+    .brand-name { font-size: 1.1rem; }
+    .text-section { padding: 56px 0; }
+    .text-inner h2 { font-size: 1.65rem; }
+    .text-inner p { font-size: 1rem; }
+
+    /* Keep the Book Now button compact so it covers less of the photos */
+    .book-now-fab { left: 14px; bottom: 14px; padding: 11px 18px; font-size: 0.85rem; }
+    .book-now-modal { padding: 12px; }
+    .book-now-box { padding: 28px 20px; }
+    #bookNowForm input, #bookNowForm textarea { font-size: 16px; } /* stops iOS zooming in */
+  }
+  @media (max-width: 360px) {
+    .wrap { padding: 0 16px; }
+    .service-photo { margin: 0 -16px; }
+    .brand { gap: 8px; }
+    .brand-name { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- All editable content (text, images, contact details) lives in
+     config.js — open that file to make changes, never this one. -->
+<script src="config.js"></script>
+
+<div id="root"></div>
+
+<!-- Book Now button (fixed, bottom-left) -->
+<button id="bookNowBtn" class="book-now-fab">Book Now</button>
+
+<!-- Book Now enquiry modal -->
+<div id="bookNowModal" class="book-now-modal">
+  <div class="book-now-box">
+    <button id="bookNowClose" class="book-now-close" aria-label="Close">&times;</button>
+    <h3 class="serif">Enquire on WhatsApp</h3>
+    <form id="bookNowForm">
+      <input type="text" name="name" placeholder="Name" required />
+      <input type="tel" name="phone" placeholder="Phone Number" required />
+      <input type="text" name="eventType" placeholder="Event Type (e.g. Wedding)" required />
+      <input type="date" name="eventDate" aria-label="Event Date" title="Event Date" required />
+      <input type="text" name="eventLocation" placeholder="Event Location" required />
+      <textarea name="message" placeholder="Message / Requirements (optional)" rows="3"></textarea>
+      <button type="submit" class="book-now-submit">Send on WhatsApp</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function waLink(digits) { return "https://wa.me/" + String(digits).replace(/\D/g, ""); }
+
+  const placeholderSVG =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(
+      "<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'>" +
+      "<rect width='100%' height='100%' fill='#EDEAE4'/>" +
+      "<text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#A79E92' text-anchor='middle'>Image placeholder</text>" +
+      "</svg>"
+    );
+
+  function imgTag(src, alt, cls) {
+    return '<img src="' + src + '" alt="' + alt + '" class="' + (cls || '') +
+      '" onerror="this.onerror=null;this.src=\'' + placeholderSVG + '\';" />';
+  }
+
+  // Netlify Image CDN URL — resizes/compresses the original on the fly, so
+  // multi-megabyte camera photos download as small, fast web images.
+  function cdnUrl(src, width) {
+    return "/.netlify/images?url=" + encodeURIComponent("/" + src) + "&w=" + width;
+  }
+
+  // Optimized, lazy-loaded photo. If the CDN isn't available (e.g. opening
+  // the file directly on a computer) it falls back to the original file,
+  // then to the grey placeholder.
+  function photoTag(src, alt, eager, fullWidth) {
+    var srcset = (fullWidth ? [800, 1200, 1800, 2400, 3000] : [800, 1200, 1800]).map(function (w) {
+      return cdnUrl(src, w) + " " + w + "w";
+    }).join(", ");
+    return '<img src="' + cdnUrl(src, 1200) + '" srcset="' + srcset + '"' +
+      ' sizes="' + (fullWidth ? '100vw' : '(min-width: 1152px) 1072px, 100vw') + '" alt="' + alt + '"' +
+      (fullWidth ? ' width="1800" height="1200"' : '') +
+      (eager ? ' fetchpriority="high"' : ' loading="lazy"') + ' decoding="async"' +
+      ' onerror="if(!this.dataset.fb){this.dataset.fb=1;this.removeAttribute(\'srcset\');this.src=\'' + src + '\';}' +
+      'else{this.onerror=null;this.src=\'' + placeholderSVG + '\';}" />';
+  }
+
+  function videoTag(src, alt, cls) {
+    // poster = same grey placeholder, shown until the video file loads
+    // (or permanently, if the video file hasn't been added yet)
+    return '<video src="' + src + '" class="' + (cls || '') +
+      '" controls playsinline preload="metadata" poster="' + placeholderSVG +
+      '" aria-label="' + alt + '"></video>';
+  }
+
+  function serviceMediaTag(s) {
+    return s.video ? videoTag(s.video, s.title) : photoTag(s.image, s.title);
+  }
+
+  // "images/services/destination-wedding/" -> "destination-wedding"
+  function slugFromFolder(folder) {
+    return folder.replace("images/services/", "").replace(/\/$/, "");
+  }
+
+  const navLinks = SITE.nav.map(function (item) {
+    return '<a href="' + item.href + '" class="nav-link">' + item.label + '</a>';
+  }).join("");
+
+  const serviceItems = SITE.services.map(function (s) {
+    var viewLink = s.galleryFolder
+      ? ' <a href="gallery.html?album=' + encodeURIComponent(slugFromFolder(s.galleryFolder)) +
+        '" class="service-view-link">View more</a>'
+      : "";
+    return (
+      '<div class="service-item">' +
+        '<div class="service-photo">' + serviceMediaTag(s) + '</div>' +
+        '<p>' + s.title + viewLink + '</p>' +
+      '</div>'
+    );
+  }).join("");
+
+  const c = SITE.contact;
+
+  document.getElementById("root").innerHTML =
+    '<header>' +
+      '<div class="wrap">' +
+        '<div class="header-row">' +
+          '<a href="#home" class="brand">' +
+            imgTag(SITE.images.logo, SITE.businessName) +
+            '<span class="brand-name serif">' + SITE.businessName + '</span>' +
+          '</a>' +
+          '<nav class="desktop-nav">' + navLinks + '</nav>' +
+          '<button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">' +
+            '<span></span><span></span><span></span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mobile-nav" id="mobileNav">' +
+        '<div class="mobile-nav-inner">' + navLinks + '</div>' +
+      '</div>' +
+    '</header>' +
+
+    '<main>' +
+      '<section id="home" class="photo-block reveal">' +
+        '<div class="photo-frame full">' + photoTag(SITE.images.hero, "Wedding photograph", true, true) + '</div>' +
+      '</section>' +
+
+      '<section id="biography" class="text-section reveal">' +
+        '<div class="wrap"><div class="text-inner">' +
+          '<h2 class="serif">Biography</h2>' +
+          '<p>' + SITE.biography + '</p>' +
+        '</div></div>' +
+      '</section>' +
+
+      '<section class="photo-block reveal">' +
+        '<div class="photo-frame full">' + photoTag(SITE.images.biographyPhoto, "Wedding photograph", false, true) + '</div>' +
+      '</section>' +
+
+      '<section id="about" class="text-section tint reveal">' +
+        '<div class="wrap"><div class="text-inner">' +
+          '<h2 class="serif">About us</h2>' +
+          '<p>' + SITE.aboutText + '</p>' +
+        '</div></div>' +
+      '</section>' +
+
+      '<section id="experience" class="text-section reveal">' +
+        '<div class="wrap"><div class="text-inner">' +
+          '<h2 class="serif">Work experience</h2>' +
+          '<p>' + SITE.workExperience + '</p>' +
+        '</div></div>' +
+      '</section>' +
+
+      '<section class="photo-block reveal">' +
+        '<div class="photo-frame full">' + photoTag(SITE.images.experiencePhoto, "Wedding photograph", false, true) + '</div>' +
+      '</section>' +
+
+      '<section id="services" class="text-section reveal">' +
+        '<div class="wrap">' +
+          '<div class="text-inner" style="max-width:100%"><h2 class="serif">Services</h2></div>' +
+          '<div class="services-grid">' + serviceItems + '</div>' +
+        '</div>' +
+      '</section>' +
+    '</main>' +
+
+    '<footer id="contact">' +
+      '<div class="footer-inner">' +
+        '<p class="brand-name serif">' + SITE.businessName + '</p>' +
+        '<div class="contact-grid">' +
+          '<div><p class="contact-label">Phone</p><a class="contact-value" href="tel:' + c.phoneNumberDial + '">' + c.phoneNumber + '</a></div>' +
+          '<div><p class="contact-label">WhatsApp</p><a class="contact-value" href="' + waLink(c.whatsappNumberDial) + '" target="_blank" rel="noopener noreferrer">' + c.whatsappNumber + '</a></div>' +
+          '<div><p class="contact-label">Instagram</p><a class="contact-value" href="' + c.instagramUrl + '" target="_blank" rel="noopener noreferrer">Visit</a></div>' +
+          '<div><p class="contact-label">Location</p><a class="contact-value" href="' + c.googleMapsUrl + '" target="_blank" rel="noopener noreferrer">View map</a></div>' +
+        '</div>' +
+        '<p class="copyright">© 2026 Anil Photography. All Rights Reserved.</p>' +
+      '</div>' +
+    '</footer>';
+
+  // Mobile nav toggle
+  var hamburger = document.getElementById("hamburger");
+  var mobileNav = document.getElementById("mobileNav");
+  hamburger.addEventListener("click", function () {
+    var open = hamburger.classList.toggle("open");
+    mobileNav.classList.toggle("open", open);
+    hamburger.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  document.querySelectorAll("a[href^='#']").forEach(function (a) {
+    a.addEventListener("click", function () {
+      hamburger.classList.remove("open");
+      mobileNav.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  // Reveal-on-scroll
+  var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reveals = document.querySelectorAll(".reveal");
+  if (prefersReduced) {
+    reveals.forEach(function (el) { el.classList.add("visible"); });
+  } else {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    // threshold 0: reveal as soon as any part enters view. A percentage
+    // threshold never triggers on very tall sections (like Services),
+    // which left them invisible.
+    }, { threshold: 0, rootMargin: "0px 0px -60px 0px" });
+    reveals.forEach(function (el) { observer.observe(el); });
+  }
+</script>
+
+<script src="booking.js"></script>
+</body>
+</html>

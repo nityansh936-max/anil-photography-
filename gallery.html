@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gallery — Anil Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1c1a17;
+    --ink-soft: #57534e;
+    --line: #e7e5e4;
+    --tint: #faf9f7;
+    --accent: #2C4A6E;
+    --accent-dark: #233c59;
+    --placeholder: #EDEAE4;
+    --placeholder-text: #A79E92;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff; color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  .serif { font-family: 'Playfair Display', Georgia, serif; }
+  a { text-decoration: none; color: inherit; }
+  img { display: block; max-width: 100%; }
+
+  .wrap { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
+  @media (min-width: 768px) { .wrap { padding: 0 40px; } }
+
+  header {
+    background: #fff; border-bottom: 1px solid var(--line);
+  }
+  .header-row {
+    display: flex; align-items: center; justify-content: space-between; height: 76px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { height: 40px; width: auto; object-fit: contain; }
+  .brand-name { font-size: 1.15rem; color: var(--ink); }
+  .back-link {
+    font-size: 0.88rem; color: var(--ink-soft); display: flex; align-items: center; gap: 6px;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .page-title {
+    text-align: center; padding: 56px 24px 8px; font-size: 2rem;
+  }
+  @media (min-width: 768px) { .page-title { font-size: 2.4rem; padding-top: 72px; } }
+  .page-status {
+    text-align: center; color: var(--ink-soft); font-size: 0.9rem; padding: 0 24px 48px;
+  }
+
+  /* Masonry-style photo grid — preserves each photo's own proportions */
+  .photo-grid {
+    column-count: 1; column-gap: 20px; padding: 0 24px 80px; max-width: 1152px; margin: 0 auto;
+  }
+  @media (min-width: 640px) { .photo-grid { column-count: 2; } }
+  @media (min-width: 1024px) { .photo-grid { column-count: 3; } }
+  .photo-grid a {
+    display: block; margin-bottom: 20px; break-inside: avoid; overflow: hidden;
+    background: var(--placeholder);
+  }
+  .photo-grid img {
+    width: 100%; height: auto; display: block; transition: transform .3s ease;
+  }
+  .photo-grid a:hover img { transform: scale(1.02); }
+
+  .empty-state {
+    text-align: center; padding: 80px 24px; color: var(--ink-soft);
+  }
+  .empty-state a { color: var(--accent); text-decoration: underline; }
+
+  /* ---------- Phone view only (below 640px) ---------- */
+  @media (max-width: 639px) {
+    .header-row { height: 64px; gap: 12px; }
+    .brand { gap: 8px; min-width: 0; }
+    .brand img { height: 34px; }
+    .brand-name { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .back-link { font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
+    .page-title { font-size: 1.6rem; padding: 36px 16px 6px; }
+    .page-status { padding: 0 16px 28px; }
+    .photo-grid { padding: 0 0 56px; }
+    .photo-grid a { margin-bottom: 12px; }
+    .photo-grid a:hover img { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<script src="config.js"></script>
+
+<header>
+  <div class="wrap">
+    <div class="header-row">
+      <a href="index.html" class="brand">
+        <img id="brandLogo" src="images/anil-photography-logo.png" alt="" />
+        <span class="brand-name serif" id="brandName"></span>
+      </a>
+      <a href="index.html#services" class="back-link">&#8592; Back to services</a>
+    </div>
+  </div>
+</header>
+
+<h1 id="pageTitle" class="page-title serif"></h1>
+<p id="pageStatus" class="page-status">Loading photos…</p>
+<div id="photoGrid" class="photo-grid"></div>
+
+<script>
+  document.getElementById("brandName").textContent = SITE.businessName;
+  document.getElementById("brandLogo").onerror = function () {
+    this.onerror = null;
+    this.src =
+      "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(
+        "<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'>" +
+        "<rect width='100%' height='100%' fill='#EDEAE4'/></svg>"
+      );
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  var albumSlug = params.get("album");
+
+  var service = SITE.services.find(function (s) {
+    if (!s.galleryFolder) return false;
+    var slug = s.galleryFolder.replace("images/services/", "").replace(/\/$/, "");
+    return slug === albumSlug;
+  });
+
+  var titleEl = document.getElementById("pageTitle");
+  var statusEl = document.getElementById("pageStatus");
+  var gridEl = document.getElementById("photoGrid");
+
+  if (!service) {
+    titleEl.textContent = "Album not found";
+    statusEl.innerHTML = 'Go back to <a href="index.html#services">Services</a>.';
+  } else {
+    titleEl.textContent = service.title;
+    document.title = service.title + " — " + SITE.businessName;
+    loadGallery(service);
+  }
+
+  // Serves a resized, compressed copy through Netlify Image CDN so the
+  // album loads fast — the original photos are several MB each.
+  function cdnUrl(src, width) {
+    return "/.netlify/images?url=" + encodeURIComponent("/" + src) +
+      "&w=" + width + "&q=80";
+  }
+
+  // Checks a file exists with a lightweight HEAD request instead of
+  // downloading the full image.
+  function checkImageExists(url) {
+    return fetch(url, { method: "HEAD", cache: "no-cache" })
+      .then(function (res) {
+        var type = res.headers.get("content-type") || "";
+        return res.ok && type.indexOf("image") === 0;
+      })
+      .catch(function () { return false; });
+  }
+
+  // Auto-detects extra photos in the service's galleryFolder, named
+  // 1.jpg / 2.jpg / 3.jpg ... (jpg, jpeg, png or webp). Stops at the
+  // first missing number — see the note in config.js. Each photo is
+  // shown as soon as it's found.
+  // Numbers are checked several at a time (in parallel) and then shown
+  // in order, so a big album is detected in a few round-trips instead
+  // of one request per photo.
+  function findExtraPhotos(folder, onFound) {
+    var exts = ["jpg", "jpeg", "png", "webp"];
+    var maxToCheck = 60;
+    var batchSize = 8;
+    var found = [];
+
+    function findNumber(n) {
+      var tryExt = function (i) {
+        if (i >= exts.length) return Promise.resolve(null);
+        var url = folder + n + "." + exts[i];
+        return checkImageExists(url).then(function (ok) {
+          return ok ? url : tryExt(i + 1);
+        });
+      };
+      return tryExt(0);
+    }
+
+    function checkBatch(start) {
+      if (start > maxToCheck) return Promise.resolve();
+      var end = Math.min(start + batchSize - 1, maxToCheck);
+      var checks = [];
+      for (var n = start; n <= end; n++) checks.push(findNumber(n));
+      return Promise.all(checks).then(function (urls) {
+        for (var i = 0; i < urls.length; i++) {
+          if (!urls[i]) return; // first gap — stop looking
+          found.push(urls[i]);
+          onFound(urls[i]);
+        }
+        return checkBatch(end + 1);
+      });
+    }
+
+    return checkBatch(1).then(function () { return found; });
+  }
+
+  function addPhoto(src) {
+    var link = document.createElement("a");
+    link.href = cdnUrl(src, 2400);
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    var img = document.createElement("img");
+    img.alt = service.title;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.src = cdnUrl(src, 800);
+    img.srcset = cdnUrl(src, 600) + " 600w, " + cdnUrl(src, 800) + " 800w, " +
+      cdnUrl(src, 1200) + " 1200w";
+    img.sizes = "(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw";
+    img.onerror = function () {
+      // Image CDN unavailable (e.g. plain local preview) — use the original.
+      if (img.dataset.fallback) { link.remove(); return; }
+      img.dataset.fallback = "1";
+      img.removeAttribute("srcset");
+      img.src = src;
+      link.href = src;
+    };
+
+    link.appendChild(img);
+    gridEl.appendChild(link);
+  }
+
+  function loadGallery(service) {
+    var count = 1;
+    addPhoto(service.image);
+
+    findExtraPhotos(service.galleryFolder, function (url) {
+      count++;
+      addPhoto(url);
+      statusEl.textContent = "Loading photos… (" + count + ")";
+    }).then(function () {
+      statusEl.textContent = count === 1 ? "1 photo" : count + " photos";
+    });
+  }
+</script>
+</body>
+</html>
